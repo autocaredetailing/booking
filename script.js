@@ -8,6 +8,8 @@ const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
 const dateInput = document.querySelector('input[name="date"]');
+const fullMessage = document.getElementById("dayFullMessage");
+
 
 /* PREVENT PAST DATES */
 
@@ -112,24 +114,30 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GENERATE TIME SLOTS */
+/* GENERATE 30 MINUTE TIME SLOTS */
 
 function generateTimes(){
 
 for(let i=7;i<=17;i++){
 
-let option=document.createElement("option");
+for(let m=0;m<60;m+=30){
 
 let hour12 = i % 12 || 12;
 let ampm = i < 12 ? "AM" : "PM";
 
-let label = hour12 + ":00 " + ampm;
-let value = i + ":00";
+let minutes = m === 0 ? "00" : "30";
 
-option.value=value;
-option.text=label;
+let label = hour12 + ":" + minutes + " " + ampm;
+let value = i + ":" + minutes;
+
+let option = document.createElement("option");
+
+option.value = value;
+option.text = label;
 
 timeSlots.appendChild(option);
+
+}
 
 }
 
@@ -146,35 +154,66 @@ function loadBookedTimes(){
 
 let date = dateInput.value;
 
+fullMessage.innerText = "";
+
 fetch(scriptURL + "?date=" + date)
 .then(res=>res.json())
 .then(booked=>{
 
 let options = timeSlots.querySelectorAll("option");
+let availableCount = 0;
 
 options.forEach(option=>{
 
+if(option.value===""){
+return;
+}
+
 option.disabled=false;
 
-let hour=parseInt(option.value);
+let slot = option.value;
 
 for(let b of booked){
 
-let bookedHour=parseInt(b);
+let bookedTime = b;
 
-// block same time
-if(hour===bookedHour){
-option.disabled=true;
+/* convert booked time to minutes */
+
+let bookedParts = bookedTime.split(":");
+let bookedMinutes =
+parseInt(bookedParts[0])*60 + parseInt(bookedParts[1]);
+
+/* convert slot time to minutes */
+
+let slotParts = slot.split(":");
+let slotMinutes =
+parseInt(slotParts[0])*60 + parseInt(slotParts[1]);
+
+/* block 90 minutes (1 hr service + 30 buffer) */
+
+if(slotMinutes >= bookedMinutes && slotMinutes < bookedMinutes + 90){
+
+option.disabled = true;
+
 }
 
-// block next hour (buffer)
-if(hour===bookedHour+1){
-option.disabled=true;
 }
 
+if(!option.disabled){
+availableCount++;
 }
 
 });
+
+
+/* FULLY BOOKED DAY */
+
+if(availableCount === 0){
+
+fullMessage.innerText =
+"This day is fully booked. Please select another date.";
+
+}
 
 });
 
