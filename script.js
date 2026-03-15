@@ -9,6 +9,11 @@ const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
 const dateInput = document.querySelector('input[name="date"]');
 
+/* PREVENT PAST DATES */
+
+const today = new Date().toISOString().split("T")[0];
+dateInput.setAttribute("min", today);
+
 
 /* PRICE LIST */
 
@@ -107,7 +112,7 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GENERATE TIME SLOTS (12 HOUR FORMAT) */
+/* GENERATE TIME SLOTS */
 
 function generateTimes(){
 
@@ -121,8 +126,8 @@ let ampm = i < 12 ? "AM" : "PM";
 let label = hour12 + ":00 " + ampm;
 let value = i + ":00";
 
-option.value = value;
-option.text = label;
+option.value=value;
+option.text=label;
 
 timeSlots.appendChild(option);
 
@@ -142,27 +147,29 @@ function loadBookedTimes(){
 let date = dateInput.value;
 
 fetch(scriptURL + "?date=" + date)
-.then(res => res.json())
-.then(booked => {
+.then(res=>res.json())
+.then(booked=>{
 
 let options = timeSlots.querySelectorAll("option");
 
-options.forEach(option => {
+options.forEach(option=>{
 
-option.disabled = false;
+option.disabled=false;
 
-let hour = parseInt(option.value);
+let hour=parseInt(option.value);
 
 for(let b of booked){
 
-let bookedHour = parseInt(b);
+let bookedHour=parseInt(b);
 
-/* block booked slot + buffer */
+// block same time
+if(hour===bookedHour){
+option.disabled=true;
+}
 
-if(hour === bookedHour || hour === bookedHour + 1){
-
-option.disabled = true;
-
+// block next hour (buffer)
+if(hour===bookedHour+1){
+option.disabled=true;
 }
 
 }
@@ -188,7 +195,7 @@ let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
 
-/* BUSINESS HOURS VALIDATION */
+/* BUSINESS HOURS */
 
 const day = new Date(data.date).getDay();
 const hour = parseInt(data.time);
