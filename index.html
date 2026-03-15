@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Book Appointment</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f5f5;
+padding:40px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+}
+
+input,select,button{
+width:100%;
+padding:10px;
+margin-top:10px;
+}
+
+button{
+background:black;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Book Appointment</h1>
+
+<form id="bookingForm">
+
+<input type="text" name="name" placeholder="Full Name" required>
+
+<input type="tel" name="phone" placeholder="Phone Number" required>
+
+<input type="email" name="email" placeholder="Email" required>
+
+<select name="service">
+
+<option>Basic Exterior Services</option>
+<option>Basic Interior Services</option>
+<option>Express Clean Tier 1</option>
+<option>Deep Clean Tier 2</option>
+<option>Premium Clean Tier 3</option>
+<option>Platinum VIP Plan</option>
+<option>Gold VIP Plan</option>
+
+</select>
+
+<select name="vehicle">
+
+<option>Sedan</option>
+<option>SUV</option>
+<option>Pickup/Van</option>
+
+</select>
+
+<input type="date" name="date" required>
+
+<input type="time" name="time" step="3600" required>
+
+<button type="submit">Book Appointment</button>
+
+</form>
+
+<p id="message"></p>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
