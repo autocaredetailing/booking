@@ -7,60 +7,26 @@ const addonsBox = document.getElementById("addons");
 const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
-const dateInput = document.querySelector('input[name="date"]');
-const fullMessage = document.getElementById("dayFullMessage");
+const dateInput = document.querySelector("input[name='date']");
+
 
 /* PREVENT PAST DATES */
 
-const today = new Date().toISOString().split("T")[0];
-dateInput.setAttribute("min", today);
+let today = new Date().toISOString().split("T")[0];
+dateInput.min = today;
 
 
 /* PRICE LIST */
 
 const prices = {
 
-"Basic Exterior Services":{
-Sedan:3000,
-SUV:3500,
-"Pickup/Van":4000
-},
-
-"Basic Interior Services":{
-Sedan:4000,
-SUV:4500,
-"Pickup/Van":5000
-},
-
-"Express Clean Tier 1":{
-Sedan:6000,
-SUV:7000,
-"Pickup/Van":8000
-},
-
-"Deep Clean Tier 2":{
-Sedan:9000,
-SUV:10000,
-"Pickup/Van":11000
-},
-
-"Premium Clean Tier 3":{
-Sedan:14000,
-SUV:15000,
-"Pickup/Van":16000
-},
-
-"Platinum VIP Plan":{
-Sedan:20000,
-SUV:22000,
-"Pickup/Van":24000
-},
-
-"Gold VIP Plan":{
-Sedan:16000,
-SUV:18000,
-"Pickup/Van":20000
-}
+"Basic Exterior Services":{Sedan:3000,SUV:3500,"Pickup/Van":4000},
+"Basic Interior Services":{Sedan:4000,SUV:4500,"Pickup/Van":5000},
+"Express Clean Tier 1":{Sedan:6000,SUV:7000,"Pickup/Van":8000},
+"Deep Clean Tier 2":{Sedan:9000,SUV:10000,"Pickup/Van":11000},
+"Premium Clean Tier 3":{Sedan:14000,SUV:15000,"Pickup/Van":16000},
+"Platinum VIP Plan":{Sedan:20000,SUV:22000,"Pickup/Van":24000},
+"Gold VIP Plan":{Sedan:16000,SUV:18000,"Pickup/Van":20000}
 
 };
 
@@ -113,26 +79,59 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GENERATE 30 MINUTE TIME SLOTS */
+/* GET BUSINESS HOURS */
+
+function getBusinessHours(date){
+
+const day = new Date(date).getDay();
+
+let start = 7;
+let end = 15;
+
+if(day === 6){ 
+end = 17;
+}
+
+if(day === 0){
+end = 13;
+}
+
+return {start,end};
+
+}
+
+
+/* GENERATE TIME SLOTS */
 
 function generateTimes(){
 
-for(let i=7;i<=17;i++){
+timeSlots.innerHTML='<option value="">Select Time</option>';
 
-for(let m=0;m<60;m+=30){
+if(!dateInput.value) return;
 
-let hour12 = i % 12 || 12;
-let ampm = i < 12 ? "AM" : "PM";
+const hours = getBusinessHours(dateInput.value);
 
-let minutes = m === 0 ? "00" : "30";
+for(let h = hours.start; h <= hours.end; h++){
 
-let label = hour12 + ":" + minutes + " " + ampm;
-let value = i + ":" + minutes;
+for(let m = 0; m < 60; m += 30){
+
+let hour = h;
+let minute = m;
+
+let ampm = hour >= 12 ? "PM" : "AM";
+let displayHour = hour % 12;
+displayHour = displayHour ? displayHour : 12;
+
+let display =
+displayHour + ":" + (minute===0?"00":minute) + " " + ampm;
+
+let value =
+hour + ":" + (minute===0?"00":minute);
 
 let option = document.createElement("option");
 
-option.value = value;
-option.text = label;
+option.value=value;
+option.text=display;
 
 timeSlots.appendChild(option);
 
@@ -142,31 +141,26 @@ timeSlots.appendChild(option);
 
 }
 
-generateTimes();
 
-
-/* HIDE PAST TIMES IF BOOKING TODAY */
+/* HIDE PAST TIMES */
 
 function hidePastTimes(){
 
+const selectedDate = dateInput.value;
 const today = new Date().toISOString().split("T")[0];
 
-if(dateInput.value !== today){
-return;
-}
+if(selectedDate !== today) return;
 
-let now = new Date();
+const now = new Date();
 
-let currentMinutes =
+const currentMinutes =
 now.getHours()*60 + now.getMinutes();
 
-let options = timeSlots.querySelectorAll("option");
+const options = timeSlots.querySelectorAll("option");
 
 options.forEach(option=>{
 
-if(option.value===""){
-return;
-}
+if(option.value==="") return;
 
 let parts = option.value.split(":");
 
@@ -175,7 +169,7 @@ parseInt(parts[0])*60 + parseInt(parts[1]);
 
 if(slotMinutes <= currentMinutes){
 
-option.disabled = true;
+option.disabled=true;
 
 }
 
@@ -186,72 +180,68 @@ option.disabled = true;
 
 /* LOAD BOOKED TIMES */
 
-dateInput.addEventListener("change", loadBookedTimes);
-
 function loadBookedTimes(){
 
-let date = dateInput.value;
+if(!dateInput.value) return;
 
-fullMessage.innerText = "";
+fetch(scriptURL+"?date="+dateInput.value)
 
-fetch(scriptURL + "?date=" + date)
 .then(res=>res.json())
+
 .then(booked=>{
 
-let options = timeSlots.querySelectorAll("option");
-let availableCount = 0;
+const options = timeSlots.querySelectorAll("option");
 
 options.forEach(option=>{
 
-if(option.value===""){
-return;
-}
+if(booked.includes(option.value)){
 
-option.disabled=false;
+option.disabled=true;
 
-let slot = option.value;
+let parts = option.value.split(":");
+let minutes =
+parseInt(parts[0])*60 + parseInt(parts[1]);
 
-for(let b of booked){
+let buffer1 = minutes + 30;
+let buffer2 = minutes + 60;
 
-let bookedParts = b.split(":");
-let bookedMinutes =
-parseInt(bookedParts[0])*60 + parseInt(bookedParts[1]);
+options.forEach(o=>{
 
-let slotParts = slot.split(":");
-let slotMinutes =
-parseInt(slotParts[0])*60 + parseInt(slotParts[1]);
+if(o.value==="") return;
 
-/* BLOCK 90 MINUTES (SERVICE + BUFFER) */
+let p = o.value.split(":");
+let m = parseInt(p[0])*60 + parseInt(p[1]);
 
-if(slotMinutes >= bookedMinutes && slotMinutes < bookedMinutes + 90){
-option.disabled = true;
-}
+if(m===buffer1 || m===buffer2){
 
-}
+o.disabled=true;
 
-if(!option.disabled){
-availableCount++;
 }
 
 });
 
-
-/* CHECK IF DAY FULL */
-
-if(availableCount === 0){
-
-fullMessage.innerText =
-"This day is fully booked. Please select another date.";
-
 }
 
-/* HIDE PAST TIMES IF TODAY */
+});
 
 hidePastTimes();
 
 });
 
 }
+
+
+/* DATE CHANGE */
+
+dateInput.addEventListener("change",()=>{
+
+generateTimes();
+
+loadBookedTimes();
+
+hidePastTimes();
+
+});
 
 
 /* FORM SUBMIT */
@@ -263,30 +253,10 @@ e.preventDefault();
 let totalPrice = calculatePrice();
 
 let formData = new FormData(form);
+
 let data = Object.fromEntries(formData.entries());
 
 data.price = totalPrice;
-
-
-/* BUSINESS HOURS VALIDATION */
-
-const day = new Date(data.date).getDay();
-const hour = parseInt(data.time);
-
-if(day==0 && (hour<7 || hour>13)){
-alert("Sunday hours are 7AM - 1PM");
-return;
-}
-
-if(day==6 && (hour<7 || hour>17)){
-alert("Saturday hours are 7AM - 5PM");
-return;
-}
-
-if(day>=1 && day<=5 && (hour<7 || hour>15)){
-alert("Weekday hours are 7AM - 3PM");
-return;
-}
 
 
 /* SEND BOOKING */
@@ -309,6 +279,7 @@ document.getElementById("message").innerText =
 "Booking request received. We will confirm shortly.";
 
 form.reset();
+
 priceBox.innerText="Total Price: $0";
 
 }
