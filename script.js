@@ -58,7 +58,7 @@ SUV:18000,
 };
 
 
-/* SHOW ADDONS ONLY FOR BASIC SERVICES */
+/* SHOW ADDONS */
 
 service.addEventListener("change", ()=>{
 
@@ -69,10 +69,7 @@ service.value === "Basic Interior Services"
 addonsBox.style.display="block";
 }else{
 addonsBox.style.display="none";
-
-addons.forEach(a=>{
-a.checked=false;
-});
+addons.forEach(a=>a.checked=false);
 }
 
 calculatePrice();
@@ -109,20 +106,18 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GENERATE TIME SLOTS */
+/* TIME SLOT GENERATOR */
 
 function generateTimes(){
-
-timeSlots.innerHTML = '<option value="">Select Time</option>';
 
 for(let i=7;i<=17;i++){
 
 let option=document.createElement("option");
 
-let time = i + ":00";
+let time=i+":00";
 
-option.value = time;
-option.text = time;
+option.value=time;
+option.text=time;
 
 timeSlots.appendChild(option);
 
@@ -147,7 +142,7 @@ let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
 
-/* BUSINESS HOURS VALIDATION */
+/* BUSINESS HOURS */
 
 const day = new Date(data.date).getDay();
 const hour = parseInt(data.time);
@@ -189,14 +184,9 @@ document.getElementById("message").innerText =
 
 form.reset();
 priceBox.innerText="Total Price: $0";
-addonsBox.style.display="none";
 
 }
 
-})
-.catch(err=>{
-document.getElementById("message").innerText =
-"Booking failed. Please try again.";
 });
 
 });
