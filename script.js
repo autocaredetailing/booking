@@ -7,6 +7,7 @@ const addonsBox = document.getElementById("addons");
 const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
+const dateInput = document.querySelector('input[name="date"]');
 
 
 /* PRICE LIST */
@@ -106,7 +107,7 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* TIME SLOT GENERATOR */
+/* GENERATE TIME SLOTS (12 HOUR FORMAT) */
 
 function generateTimes(){
 
@@ -114,10 +115,14 @@ for(let i=7;i<=17;i++){
 
 let option=document.createElement("option");
 
-let time=i+":00";
+let hour12 = i % 12 || 12;
+let ampm = i < 12 ? "AM" : "PM";
 
-option.value=time;
-option.text=time;
+let label = hour12 + ":00 " + ampm;
+let value = i + ":00";
+
+option.value = value;
+option.text = label;
 
 timeSlots.appendChild(option);
 
@@ -126,6 +131,47 @@ timeSlots.appendChild(option);
 }
 
 generateTimes();
+
+
+/* LOAD BOOKED TIMES */
+
+dateInput.addEventListener("change", loadBookedTimes);
+
+function loadBookedTimes(){
+
+let date = dateInput.value;
+
+fetch(scriptURL + "?date=" + date)
+.then(res => res.json())
+.then(booked => {
+
+let options = timeSlots.querySelectorAll("option");
+
+options.forEach(option => {
+
+option.disabled = false;
+
+let hour = parseInt(option.value);
+
+for(let b of booked){
+
+let bookedHour = parseInt(b);
+
+/* block booked slot + buffer */
+
+if(hour === bookedHour || hour === bookedHour + 1){
+
+option.disabled = true;
+
+}
+
+}
+
+});
+
+});
+
+}
 
 
 /* FORM SUBMIT */
@@ -142,7 +188,7 @@ let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
 
-/* BUSINESS HOURS */
+/* BUSINESS HOURS VALIDATION */
 
 const day = new Date(data.date).getDay();
 const hour = parseInt(data.time);
