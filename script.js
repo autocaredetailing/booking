@@ -8,7 +8,7 @@ const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
 const dateInput = document.querySelector("input[name='date']");
-
+const messageBox = document.getElementById("message");
 
 /* PREVENT PAST DATES */
 
@@ -73,10 +73,7 @@ return total;
 }
 
 vehicle.addEventListener("change",calculatePrice);
-
-addons.forEach(a=>{
-a.addEventListener("change",calculatePrice);
-});
+addons.forEach(a=>a.addEventListener("change",calculatePrice));
 
 
 /* BUSINESS HOURS */
@@ -163,9 +160,7 @@ let slotMinutes =
 parseInt(parts[0])*60 + parseInt(parts[1]);
 
 if(slotMinutes <= currentMinutes){
-
 option.disabled=true;
-
 }
 
 });
@@ -208,9 +203,7 @@ let p = o.value.split(":");
 let m = parseInt(p[0])*60 + parseInt(p[1]);
 
 if(m===buffer1 || m===buffer2){
-
 o.disabled=true;
-
 }
 
 });
@@ -220,19 +213,17 @@ o.disabled=true;
 });
 
 
-/* CHECK IF DAY IS FULLY BOOKED */
-
-let available = false;
+let available=false;
 
 options.forEach(o=>{
-if(!o.disabled && o.value !== ""){
-available = true;
+if(!o.disabled && o.value!==""){
+available=true;
 }
 });
 
 if(!available){
 
-alert("This day is fully booked. Please select another date.");
+alert("This day is fully booked.");
 
 dateInput.value="";
 timeSlots.innerHTML='<option value="">Select Time</option>';
@@ -251,9 +242,7 @@ hidePastTimes();
 dateInput.addEventListener("change",()=>{
 
 generateTimes();
-
 loadBookedTimes();
-
 hidePastTimes();
 
 });
@@ -265,37 +254,48 @@ form.addEventListener("submit", e=>{
 
 e.preventDefault();
 
+const submitBtn = form.querySelector("button");
+submitBtn.disabled = true;
+
 let totalPrice = calculatePrice();
 
 let formData = new FormData(form);
-
 let data = Object.fromEntries(formData.entries());
 
 data.price = totalPrice;
-
 
 fetch(scriptURL,{
 method:"POST",
 body:JSON.stringify(data)
 })
+
 .then(res=>res.json())
+
 .then(response=>{
 
 if(response.result=="taken"){
 
-document.getElementById("message").innerText =
-"This time slot is already booked.";
+messageBox.innerText =
+"⚠️ This time slot was just booked. Please select another.";
+
+generateTimes();
+loadBookedTimes();
 
 }else{
 
-document.getElementById("message").innerText =
-"Booking request received. We will confirm shortly.";
+messageBox.innerText =
+"✅ Booking request received. We will confirm shortly.";
 
 form.reset();
 
 priceBox.innerText="Total Price: $0";
 
+generateTimes();
+loadBookedTimes();
+
 }
+
+submitBtn.disabled=false;
 
 });
 
