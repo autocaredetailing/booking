@@ -13,52 +13,52 @@ const timeSlots = document.getElementById("timeSlots");
 
 const servicePrices = {
 
-"Basic Exterior":{
+"Basic Exterior Services":{
 "Sedan":3000,
 "SUV":3500,
-"Pickup":4000
+"Pickup/Van":4000
 },
 
-"Basic Interior":{
+"Basic Interior Services":{
 "Sedan":4000,
 "SUV":4500,
-"Pickup":5000
+"Pickup/Van":5000
 },
 
-"Tier1":{
+"Express Clean Tier 1":{
 "Sedan":6000,
 "SUV":7000,
-"Pickup":8000
+"Pickup/Van":8000
 },
 
-"Tier2":{
+"Deep Clean Tier 2":{
 "Sedan":9000,
 "SUV":10000,
-"Pickup":11000
+"Pickup/Van":11000
 },
 
-"Tier3":{
+"Premium Clean Tier 3":{
 "Sedan":14000,
 "SUV":15000,
-"Pickup":16000
+"Pickup/Van":16000
 },
 
-"Platinum":{
+"Platinum VIP Plan":{
 "Sedan":20000,
 "SUV":22000,
-"Pickup":24000
+"Pickup/Van":24000
 },
 
-"Gold":{
+"Gold VIP Plan":{
 "Sedan":16000,
 "SUV":18000,
-"Pickup":20000
+"Pickup/Van":20000
 }
 
 };
 
 
-/* AUTO PRICE CALCULATION */
+/* PRICE CALCULATION */
 
 function calculatePrice(){
 
@@ -88,14 +88,16 @@ return total;
 
 service.addEventListener("change",()=>{
 
-if(service.value === "Basic Exterior" || service.value === "Basic Interior"){
+if(
+service.value === "Basic Exterior Services" ||
+service.value === "Basic Interior Services"
+){
 
 addonsBox.style.display="block";
 
 }else{
 
 addonsBox.style.display="none";
-
 addons.forEach(a=>a.checked=false);
 
 }
@@ -193,8 +195,7 @@ document.getElementById("message").innerText =
 "Booking request received. We will confirm shortly.";
 
 form.reset();
-
-priceBox.innerHTML = "Total Price: $0";
+priceBox.innerHTML="Total Price: $0";
 
 }
 
