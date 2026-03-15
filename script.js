@@ -10,7 +10,6 @@ const timeSlots = document.getElementById("timeSlots");
 const dateInput = document.querySelector('input[name="date"]');
 const fullMessage = document.getElementById("dayFullMessage");
 
-
 /* PREVENT PAST DATES */
 
 const today = new Date().toISOString().split("T")[0];
@@ -146,6 +145,45 @@ timeSlots.appendChild(option);
 generateTimes();
 
 
+/* HIDE PAST TIMES IF BOOKING TODAY */
+
+function hidePastTimes(){
+
+const today = new Date().toISOString().split("T")[0];
+
+if(dateInput.value !== today){
+return;
+}
+
+let now = new Date();
+
+let currentMinutes =
+now.getHours()*60 + now.getMinutes();
+
+let options = timeSlots.querySelectorAll("option");
+
+options.forEach(option=>{
+
+if(option.value===""){
+return;
+}
+
+let parts = option.value.split(":");
+
+let slotMinutes =
+parseInt(parts[0])*60 + parseInt(parts[1]);
+
+if(slotMinutes <= currentMinutes){
+
+option.disabled = true;
+
+}
+
+});
+
+}
+
+
 /* LOAD BOOKED TIMES */
 
 dateInput.addEventListener("change", loadBookedTimes);
@@ -175,26 +213,18 @@ let slot = option.value;
 
 for(let b of booked){
 
-let bookedTime = b;
-
-/* convert booked time to minutes */
-
-let bookedParts = bookedTime.split(":");
+let bookedParts = b.split(":");
 let bookedMinutes =
 parseInt(bookedParts[0])*60 + parseInt(bookedParts[1]);
-
-/* convert slot time to minutes */
 
 let slotParts = slot.split(":");
 let slotMinutes =
 parseInt(slotParts[0])*60 + parseInt(slotParts[1]);
 
-/* block 90 minutes (1 hr service + 30 buffer) */
+/* BLOCK 90 MINUTES (SERVICE + BUFFER) */
 
 if(slotMinutes >= bookedMinutes && slotMinutes < bookedMinutes + 90){
-
 option.disabled = true;
-
 }
 
 }
@@ -206,7 +236,7 @@ availableCount++;
 });
 
 
-/* FULLY BOOKED DAY */
+/* CHECK IF DAY FULL */
 
 if(availableCount === 0){
 
@@ -214,6 +244,10 @@ fullMessage.innerText =
 "This day is fully booked. Please select another date.";
 
 }
+
+/* HIDE PAST TIMES IF TODAY */
+
+hidePastTimes();
 
 });
 
@@ -234,7 +268,7 @@ let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
 
-/* BUSINESS HOURS */
+/* BUSINESS HOURS VALIDATION */
 
 const day = new Date(data.date).getDay();
 const hour = parseInt(data.time);
