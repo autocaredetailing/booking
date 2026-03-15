@@ -34,3 +34,23 @@ form.reset();
 })
 
 });
+
+
+
+const day = new Date(data.date).getDay();
+const hour = parseInt(data.time.split(":")[0]);
+
+if(day==0 && (hour<7 || hour>13)){
+alert("Sunday hours are 7AM - 1PM");
+return;
+}
+
+if(day==6 && (hour<7 || hour>17)){
+alert("Saturday hours are 7AM - 5PM");
+return;
+}
+
+if(day>=1 && day<=5 && (hour<7 || hour>15)){
+alert("Weekday hours are 7AM - 3PM");
+return;
+}
