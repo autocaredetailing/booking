@@ -6,9 +6,9 @@ form.addEventListener("submit", e => {
 
 e.preventDefault();
 
-var formData = new FormData(form);
+let formData = new FormData(form);
 
-var data = Object.fromEntries(formData.entries());
+let data = Object.fromEntries(formData.entries());
 
 fetch(scriptURL,{
 method:"POST",
@@ -18,17 +18,12 @@ body:JSON.stringify(data)
 .then(response=>{
 
 if(response.result=="taken"){
-
-document.getElementById("message").innerText="This time is already booked.";
-
+document.getElementById("message").innerText="This time slot is already booked.";
 }
 
 else{
-
 document.getElementById("message").innerText="Booking request received. We will confirm shortly.";
-
 form.reset();
-
 }
 
 })
