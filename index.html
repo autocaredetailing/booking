@@ -15,7 +15,7 @@ color:white;
 }
 
 .container{
-max-width:500px;
+max-width:520px;
 margin:auto;
 background:#0d1628;
 padding:35px;
@@ -61,6 +61,28 @@ button:hover{
 background:#0088cc;
 }
 
+#addons{
+margin-top:10px;
+background:#08101f;
+padding:15px;
+border-radius:8px;
+display:none;
+}
+
+.addon-item{
+margin-top:8px;
+}
+
+#priceBox{
+margin-top:15px;
+background:#08101f;
+padding:15px;
+border-radius:8px;
+font-size:18px;
+text-align:center;
+color:#00ffaa;
+}
+
 #message{
 margin-top:15px;
 text-align:center;
@@ -75,7 +97,7 @@ color:#00ffaa;
 
 <div class="container">
 
-<img src="logo.png" class="logo">
+<img src="logoo.png" class="logo">
 
 <h1>Book Appointment</h1>
 
@@ -87,29 +109,67 @@ color:#00ffaa;
 
 <input type="email" name="email" placeholder="Email" required>
 
-<select name="service">
+<select name="service" id="service">
 
-<option value="Basic Exterior Services">Basic Exterior Services</option>
-<option value="Basic Interior Services">Basic Interior Services</option>
-<option value="Express Clean Tier 1">Express Clean "Tier 1"</option>
-<option value="Deep Clean Tier 2">Deep Clean "Tier 2"</option>
-<option value="Premium Clean Tier 3">Premium Clean "Tier 3"</option>
-<option value="Platinum VIP Plan">Platinum VIP Plan</option>
-<option value="Gold VIP Plan">Gold VIP Plan</option>
-
-</select>
-
-<select name="vehicle">
-
-<option>Sedan</option>
-<option>SUV</option>
-<option>Pickup/Van</option>
+<option value="Basic Exterior">Basic Exterior Services</option>
+<option value="Basic Interior">Basic Interior Services</option>
+<option value="Tier1">Express Clean "Tier 1"</option>
+<option value="Tier2">Deep Clean "Tier 2"</option>
+<option value="Tier3">Premium Clean "Tier 3"</option>
+<option value="Platinum">Platinum VIP Plan</option>
+<option value="Gold">Gold VIP Plan</option>
 
 </select>
 
-<input type="date" name="date" required>
+<select name="vehicle" id="vehicle">
 
-<input type="time" name="time" step="3600" required>
+<option value="Sedan">Sedan</option>
+<option value="SUV">SUV</option>
+<option value="Pickup">Pickup/Van</option>
+
+</select>
+
+<!-- OPTIONAL ADDONS -->
+
+<div id="addons">
+
+<h3>Optional Add-ons</h3>
+
+<label class="addon-item">
+<input type="checkbox" value="6000" class="addon"> Car Belt & Seat Cleaning ($6,000)
+</label>
+
+<label class="addon-item">
+<input type="checkbox" value="2000" class="addon"> Roof Cleaning ($2,000)
+</label>
+
+<label class="addon-item">
+<input type="checkbox" value="3000" class="addon"> Door Panel Cleaning ($3,000)
+</label>
+
+<label class="addon-item">
+<input type="checkbox" value="2000" class="addon"> Center Console Cleaning ($2,000)
+</label>
+
+<label class="addon-item">
+<input type="checkbox" value="2000" class="addon"> Odor Removal ($2,000)
+</label>
+
+<label class="addon-item">
+<input type="checkbox" value="3000" class="addon"> Wheels & Rim Shine ($3,000)
+</label>
+
+</div>
+
+<input type="date" name="date" id="date" required>
+
+<select name="time" id="timeSlots">
+<option>Select Time</option>
+</select>
+
+<div id="priceBox">
+Total Price: $0
+</div>
 
 <button type="submit">Book Appointment</button>
 
