@@ -79,7 +79,7 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GET BUSINESS HOURS */
+/* BUSINESS HOURS */
 
 function getBusinessHours(date){
 
@@ -88,13 +88,8 @@ const day = new Date(date).getDay();
 let start = 7;
 let end = 15;
 
-if(day === 6){ 
-end = 17;
-}
-
-if(day === 0){
-end = 13;
-}
+if(day === 6){ end = 17; }
+if(day === 0){ end = 13; }
 
 return {start,end};
 
@@ -224,6 +219,26 @@ o.disabled=true;
 
 });
 
+
+/* CHECK IF DAY IS FULLY BOOKED */
+
+let available = false;
+
+options.forEach(o=>{
+if(!o.disabled && o.value !== ""){
+available = true;
+}
+});
+
+if(!available){
+
+alert("This day is fully booked. Please select another date.");
+
+dateInput.value="";
+timeSlots.innerHTML='<option value="">Select Time</option>';
+
+}
+
 hidePastTimes();
 
 });
@@ -258,8 +273,6 @@ let data = Object.fromEntries(formData.entries());
 
 data.price = totalPrice;
 
-
-/* SEND BOOKING */
 
 fetch(scriptURL,{
 method:"POST",
