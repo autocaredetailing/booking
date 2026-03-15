@@ -3,69 +3,85 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbxLOgRPQrvO8ISK_GLiSL
 const form = document.getElementById("bookingForm");
 const service = document.getElementById("service");
 const vehicle = document.getElementById("vehicle");
-const addons = document.querySelectorAll(".addon");
 const addonsBox = document.getElementById("addons");
+const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
 
 
-/* PRICE STRUCTURE */
+/* PRICE LIST */
 
-const servicePrices = {
+const prices = {
 
 "Basic Exterior Services":{
-"Sedan":3000,
-"SUV":3500,
+Sedan:3000,
+SUV:3500,
 "Pickup/Van":4000
 },
 
 "Basic Interior Services":{
-"Sedan":4000,
-"SUV":4500,
+Sedan:4000,
+SUV:4500,
 "Pickup/Van":5000
 },
 
 "Express Clean Tier 1":{
-"Sedan":6000,
-"SUV":7000,
+Sedan:6000,
+SUV:7000,
 "Pickup/Van":8000
 },
 
 "Deep Clean Tier 2":{
-"Sedan":9000,
-"SUV":10000,
+Sedan:9000,
+SUV:10000,
 "Pickup/Van":11000
 },
 
 "Premium Clean Tier 3":{
-"Sedan":14000,
-"SUV":15000,
+Sedan:14000,
+SUV:15000,
 "Pickup/Van":16000
 },
 
 "Platinum VIP Plan":{
-"Sedan":20000,
-"SUV":22000,
+Sedan:20000,
+SUV:22000,
 "Pickup/Van":24000
 },
 
 "Gold VIP Plan":{
-"Sedan":16000,
-"SUV":18000,
+Sedan:16000,
+SUV:18000,
 "Pickup/Van":20000
 }
 
 };
 
 
-/* PRICE CALCULATION */
+/* SHOW ADDONS */
+
+service.addEventListener("change", ()=>{
+
+if(
+service.value === "Basic Exterior Services" ||
+service.value === "Basic Interior Services"
+){
+addonsBox.style.display="block";
+}else{
+addonsBox.style.display="none";
+addons.forEach(a=>a.checked=false);
+}
+
+calculatePrice();
+
+});
+
+
+/* PRICE CALCULATOR */
 
 function calculatePrice(){
 
-let selectedService = service.value;
-let selectedVehicle = vehicle.value;
-
-let basePrice = servicePrices[selectedService][selectedVehicle];
+let base = prices[service.value]?.[vehicle.value] || 0;
 
 let addonTotal = 0;
 
@@ -75,37 +91,13 @@ addonTotal += parseInt(addon.value);
 }
 });
 
-let total = basePrice + addonTotal;
+let total = base + addonTotal;
 
-priceBox.innerHTML = "Total Price: $" + total.toLocaleString();
+priceBox.innerText = "Total Price: $" + total.toLocaleString();
 
 return total;
 
 }
-
-
-/* SHOW ADDONS ONLY FOR BASIC SERVICES */
-
-service.addEventListener("change",()=>{
-
-if(
-service.value === "Basic Exterior Services" ||
-service.value === "Basic Interior Services"
-){
-
-addonsBox.style.display="block";
-
-}else{
-
-addonsBox.style.display="none";
-addons.forEach(a=>a.checked=false);
-
-}
-
-calculatePrice();
-
-});
-
 
 vehicle.addEventListener("change",calculatePrice);
 
@@ -114,20 +106,18 @@ a.addEventListener("change",calculatePrice);
 });
 
 
-/* GENERATE TIME SLOTS */
+/* TIME SLOT GENERATOR */
 
 function generateTimes(){
 
-timeSlots.innerHTML = "";
-
 for(let i=7;i<=17;i++){
 
-let option = document.createElement("option");
+let option=document.createElement("option");
 
-let time = i + ":00";
+let time=i+":00";
 
-option.value = time;
-option.text = time;
+option.value=time;
+option.text=time;
 
 timeSlots.appendChild(option);
 
@@ -138,9 +128,9 @@ timeSlots.appendChild(option);
 generateTimes();
 
 
-/* FORM SUBMISSION */
+/* FORM SUBMIT */
 
-form.addEventListener("submit", e => {
+form.addEventListener("submit", e=>{
 
 e.preventDefault();
 
@@ -152,10 +142,10 @@ let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
 
-/* BUSINESS HOURS VALIDATION */
+/* BUSINESS HOURS */
 
 const day = new Date(data.date).getDay();
-const hour = parseInt(data.time.split(":")[0]);
+const hour = parseInt(data.time);
 
 if(day==0 && (hour<7 || hour>13)){
 alert("Sunday hours are 7AM - 1PM");
@@ -187,24 +177,15 @@ if(response.result=="taken"){
 document.getElementById("message").innerText =
 "This time slot is already booked.";
 
-}
-
-else{
+}else{
 
 document.getElementById("message").innerText =
 "Booking request received. We will confirm shortly.";
 
 form.reset();
-priceBox.innerHTML="Total Price: $0";
+priceBox.innerText="Total Price: $0";
 
 }
-
-})
-
-.catch(error => {
-
-document.getElementById("message").innerText =
-"Error submitting booking.";
 
 });
 
