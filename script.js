@@ -7,30 +7,9 @@ form.addEventListener("submit", e => {
 e.preventDefault();
 
 let formData = new FormData(form);
-
 let data = Object.fromEntries(formData.entries());
 
-fetch(scriptURL,{
-method:"POST",
-body:JSON.stringify(data)
-})
-.then(res=>res.json())
-.then(response=>{
-
-if(response.result=="taken"){
-document.getElementById("message").innerText="This time slot is already booked.";
-}
-
-else{
-document.getElementById("message").innerText="Booking request received. We will confirm shortly.";
-form.reset();
-}
-
-})
-
-});
-
-
+/* BUSINESS HOURS VALIDATION */
 
 const day = new Date(data.date).getDay();
 const hour = parseInt(data.time.split(":")[0]);
@@ -49,3 +28,39 @@ if(day>=1 && day<=5 && (hour<7 || hour>15)){
 alert("Weekday hours are 7AM - 3PM");
 return;
 }
+
+/* SEND BOOKING */
+
+fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify(data)
+})
+.then(res=>res.json())
+.then(response=>{
+
+if(response.result=="taken"){
+
+document.getElementById("message").innerText =
+"This time slot is already booked.";
+
+}
+
+else{
+
+document.getElementById("message").innerText =
+"Booking request received. We will confirm shortly.";
+
+form.reset();
+
+}
+
+})
+
+.catch(error => {
+
+document.getElementById("message").innerText =
+"Error submitting booking.";
+
+});
+
+});
