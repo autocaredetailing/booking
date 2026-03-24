@@ -27,8 +27,6 @@ const prices = {
 
 /* SHOW ADDONS */
 service.addEventListener("change", ()=>{
-messageBox.innerText = "";
-
 if(
 service.value === "Basic Exterior Services" ||
 service.value === "Basic Interior Services"
@@ -38,18 +36,11 @@ addonsBox.style.display="block";
 addonsBox.style.display="none";
 addons.forEach(a=>a.checked=false);
 }
-
 calculatePrice();
 });
 
 /* PRICE CALCULATOR */
 function calculatePrice(){
-
-if (!service.value) {
-priceBox.innerText = "Total Price: $0";
-return 0;
-}
-
 let base = prices[service.value]?.[vehicle.value] || 0;
 
 let addonTotal = 0;
@@ -83,27 +74,27 @@ return {start,end};
 
 /* GENERATE TIME SLOTS */
 function generateTimes(){
-
 timeSlots.innerHTML='<option value="">Select Time</option>';
+
 if(!dateInput.value) return;
 
 const hours = getBusinessHours(dateInput.value);
 
-for(let h = hours.start; h < hours.end; h++){
+for(let h = hours.start; h <= hours.end; h++){
 for(let m = 0; m < 60; m += 30){
 
-let hour = h;
-let minute = m;
+let ampm = h >= 12 ? "PM" : "AM";
+let displayHour = h % 12 || 12;
 
-let ampm = hour >= 12 ? "PM" : "AM";
-let displayHour = hour % 12 || 12;
+let display =
+displayHour + ":" + (m===0?"00":m) + " " + ampm;
 
-let display = `${displayHour}:${minute===0?"00":minute} ${ampm}`;
-let value = `${hour}:${minute===0?"00":minute}`;
+let value =
+h + ":" + (m===0?"00":m);
 
 let option = document.createElement("option");
-option.value = value;
-option.text = display;
+option.value=value;
+option.text=display;
 
 timeSlots.appendChild(option);
 }
@@ -112,7 +103,6 @@ timeSlots.appendChild(option);
 
 /* HIDE PAST TIMES */
 function hidePastTimes(){
-
 const selectedDate = dateInput.value;
 const today = new Date().toISOString().split("T")[0];
 
@@ -130,17 +120,16 @@ let [h,m] = option.value.split(":");
 let slotMinutes = parseInt(h)*60 + parseInt(m);
 
 if(slotMinutes <= currentMinutes){
-option.disabled = true;
+option.disabled=true;
 }
 });
 }
 
 /* LOAD BOOKED TIMES */
 function loadBookedTimes(){
-
 if(!dateInput.value) return;
 
-fetch(scriptURL + "?date=" + dateInput.value)
+fetch(scriptURL+"?date="+dateInput.value)
 .then(res=>res.json())
 .then(booked=>{
 
@@ -148,7 +137,7 @@ const options = timeSlots.querySelectorAll("option");
 
 options.forEach(option=>{
 if(booked.includes(option.value)){
-option.disabled = true;
+option.disabled=true;
 
 let [h,m] = option.value.split(":");
 let minutes = parseInt(h)*60 + parseInt(m);
@@ -159,19 +148,19 @@ options.forEach(o=>{
 if(o.value==="") return;
 
 let [hh,mm] = o.value.split(":");
-let min = parseInt(hh)*60 + parseInt(mm);
+let m2 = parseInt(hh)*60 + parseInt(mm);
 
-if(buffer.includes(min)){
-o.disabled = true;
+if(buffer.includes(m2)){
+o.disabled=true;
 }
 });
 }
 });
 
-let available = false;
+let available=false;
 options.forEach(o=>{
 if(!o.disabled && o.value!==""){
-available = true;
+available=true;
 }
 });
 
@@ -186,26 +175,18 @@ hidePastTimes();
 }
 
 /* DATE CHANGE */
-dateInput.addEventListener("change", ()=>{
-messageBox.innerText = "";
+dateInput.addEventListener("change",()=>{
 generateTimes();
 loadBookedTimes();
+hidePastTimes();
 });
 
 /* FORM SUBMIT */
 form.addEventListener("submit", e=>{
-
 e.preventDefault();
-messageBox.innerText = "";
 
 const submitBtn = form.querySelector("button");
 submitBtn.disabled = true;
-
-if (!timeSlots.value) {
-messageBox.innerText = "⚠️ Please select a valid time slot.";
-submitBtn.disabled = false;
-return;
-}
 
 let totalPrice = calculatePrice();
 
@@ -215,16 +196,12 @@ data.price = totalPrice;
 
 fetch(scriptURL,{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
 body:JSON.stringify(data)
 })
 .then(res=>res.json())
 .then(response=>{
 
 if(response.result=="taken"){
-
 messageBox.innerText =
 "⚠️ This time slot was just booked. Please select another.";
 
@@ -232,26 +209,16 @@ generateTimes();
 loadBookedTimes();
 
 }else{
-
 messageBox.innerText =
 "✅ Booking request received. We will confirm shortly.";
 
 form.reset();
 priceBox.innerText="Total Price: $0";
 
-addonsBox.style.display="none";
-addons.forEach(a=>a.checked=false);
-
 generateTimes();
 loadBookedTimes();
 }
 
 submitBtn.disabled=false;
-
-})
-.catch(()=>{
-messageBox.innerText="❌ Error submitting booking.";
-submitBtn.disabled=false;
 });
-
 });
