@@ -2,11 +2,9 @@
 <html>
 
 <head>
-
 <title>Book Appointment</title>
 
 <style>
-
 body{
 font-family:Arial;
 background:#050b18;
@@ -83,9 +81,7 @@ margin-top:15px;
 text-align:center;
 color:#00ffaa;
 }
-
 </style>
-
 </head>
 
 <body>
@@ -99,13 +95,10 @@ color:#00ffaa;
 <form id="bookingForm">
 
 <input type="text" name="name" placeholder="Full Name" required>
-
 <input type="tel" name="phone" placeholder="Phone Number" required>
-
 <input type="email" name="email" placeholder="Email" required>
 
-<select name="service" id="service">
-
+<select name="service" id="service" required>
 <option value="">Select Service</option>
 <option value="Basic Exterior Services">Basic Exterior Services</option>
 <option value="Basic Interior Services">Basic Interior Services</option>
@@ -114,21 +107,15 @@ color:#00ffaa;
 <option value="Premium Clean Tier 3">Premium Clean Tier 3</option>
 <option value="Platinum VIP Plan">Platinum VIP Plan</option>
 <option value="Gold VIP Plan">Gold VIP Plan</option>
-
 </select>
 
-<select name="vehicle" id="vehicle">
-
+<select name="vehicle" id="vehicle" required>
 <option value="Sedan">Sedan</option>
 <option value="SUV">SUV</option>
 <option value="Pickup/Van">Pickup/Van</option>
-
 </select>
 
-<!-- OPTIONAL ADDONS -->
-
 <div id="addons">
-
 <h3>Optional Add-ons</h3>
 
 <label><input type="checkbox" class="addon" value="2000"> Roof Cleaning ($2000)</label><br>
@@ -160,5 +147,4 @@ Total Price: $0
 <script src="script.js"></script>
 
 </body>
-
 </html>
