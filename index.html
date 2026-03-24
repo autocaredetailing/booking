@@ -31,7 +31,6 @@ margin-bottom:15px;
 h1{
 text-align:center;
 color:#00aaff;
-margin-bottom:20px;
 }
 
 input,select,button{
@@ -100,11 +99,9 @@ color:#00ffaa;
 
 <select name="service" id="service" required>
 <option value="">Select Service</option>
-<option value="Basic Exterior Services">Basic Exterior Services</option>
-<option value="Basic Interior Services">Basic Interior Services</option>
-<option value="Express Clean Tier 1">Express Clean Tier 1</option>
-<option value="Deep Clean Tier 2">Deep Clean Tier 2</option>
-<option value="Premium Clean Tier 3">Premium Clean Tier 3</option>
+<option value="Express Clean">Express Clean</option>
+<option value="Premium Clean">Premium Clean</option>
+<option value="Interior Deep Clean">Interior Deep Clean</option>
 <option value="Platinum VIP Plan">Platinum VIP Plan</option>
 <option value="Gold VIP Plan">Gold VIP Plan</option>
 </select>
@@ -112,18 +109,15 @@ color:#00ffaa;
 <select name="vehicle" id="vehicle">
 <option value="Sedan">Sedan</option>
 <option value="SUV">SUV</option>
-<option value="Pickup/Van">Pickup/Van</option>
+<option value="Pickup/Van/Mini Bus">Pickup/Van/Mini Bus</option>
 </select>
 
 <div id="addons">
 <h3>Optional Add-ons</h3>
 
-<label><input type="checkbox" class="addon" value="2000"> Roof Cleaning ($2000)</label><br>
-<label><input type="checkbox" class="addon" value="3000"> Door Panel Cleaning ($3000)</label><br>
-<label><input type="checkbox" class="addon" value="6000"> Seat & Belt Cleaning ($6000)</label><br>
-<label><input type="checkbox" class="addon" value="2000"> Odor Removal ($2000)</label><br>
-<label><input type="checkbox" class="addon" value="3000"> Rim Shine ($3000)</label>
-
+<label><input type="checkbox" class="addon" value="Roof Cleaning"> Roof Cleaning ($2000)</label><br>
+<label><input type="checkbox" class="addon" value="Floor Cleaning"> Floor Cleaning ($2500)</label><br>
+<label><input type="checkbox" class="addon" value="Odor Removal"> Odor Removal ($2000)</label>
 </div>
 
 <select name="time" id="timeSlots" required>
@@ -132,9 +126,7 @@ color:#00ffaa;
 
 <input type="date" name="date" required>
 
-<div id="priceBox">
-Total Price: $0
-</div>
+<div id="priceBox">Total Price: $0</div>
 
 <button type="submit">Book Appointment</button>
 
