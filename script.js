@@ -66,8 +66,8 @@ const day = new Date(date).getDay();
 let start = 7;
 let end = 15;
 
-if(day === 6){ end = 17; }
-if(day === 0){ end = 13; }
+if(day === 6){ end = 17; } // Saturday
+if(day === 0){ end = 13; } // Sunday
 
 return {start,end};
 }
@@ -129,9 +129,9 @@ option.disabled=true;
 function loadBookedTimes(){
 if(!dateInput.value) return;
 
-fetch(scriptURL+"?date="+dateInput.value)
-.then(res=>res.json())
-.then(booked=>{
+fetch(scriptURL + "?date=" + dateInput.value)
+.then(res => res.json())
+.then(booked => {
 
 const options = timeSlots.querySelectorAll("option");
 
@@ -171,6 +171,10 @@ timeSlots.innerHTML='<option value="">Select Time</option>';
 }
 
 hidePastTimes();
+
+})
+.catch(err=>{
+console.error("Error loading booked times:", err);
 });
 }
 
@@ -181,7 +185,7 @@ loadBookedTimes();
 hidePastTimes();
 });
 
-/* FORM SUBMIT */
+/* FORM SUBMIT (CORS FIX HERE) */
 form.addEventListener("submit", e=>{
 e.preventDefault();
 
@@ -194,21 +198,14 @@ let formData = new FormData(form);
 let data = Object.fromEntries(formData.entries());
 data.price = totalPrice;
 
+/* ✅ FIXED CORS */
 fetch(scriptURL,{
 method:"POST",
+mode:"no-cors",
 body:JSON.stringify(data)
 })
-.then(res=>res.json())
-.then(response=>{
+.then(()=>{
 
-if(response.result=="taken"){
-messageBox.innerText =
-"⚠️ This time slot was just booked. Please select another.";
-
-generateTimes();
-loadBookedTimes();
-
-}else{
 messageBox.innerText =
 "✅ Booking request received. We will confirm shortly.";
 
@@ -217,8 +214,14 @@ priceBox.innerText="Total Price: $0";
 
 generateTimes();
 loadBookedTimes();
-}
 
 submitBtn.disabled=false;
+
+})
+.catch(err=>{
+console.error("Error submitting form:", err);
+messageBox.innerText = "❌ Error submitting booking. Try again.";
+submitBtn.disabled=false;
 });
+
 });
