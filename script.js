@@ -110,4 +110,5 @@ form.reset();
 priceBox.innerText = "Total Price: $0";
 submitBtn.disabled = false;
 });
+  
 });
