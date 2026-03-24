@@ -7,94 +7,119 @@ const addonsBox = document.getElementById("addons");
 const addons = document.querySelectorAll(".addon");
 const priceBox = document.getElementById("priceBox");
 const timeSlots = document.getElementById("timeSlots");
-const dateInput = document.getElementById("dateInput");
+const dateInput = document.querySelector("input[name='date']");
 const messageBox = document.getElementById("message");
 
 dateInput.min = new Date().toISOString().split("T")[0];
 
-/* ========================
-   SERVICE DURATIONS (MINUTES)
-======================== */
+/* =========================
+   SERVICE DURATIONS (minutes)
+========================= */
 const durations = {
 "Express Clean": 90,
 "Premium Clean": 150,
 "Interior Deep Clean": 180
 };
 
-/* BUFFER TIME */
 const BUFFER = 30;
 
-/* ========================
-   WORKING HOURS
-======================== */
-function getHours(date){
-const day = new Date(date).getDay();
+/* =========================
+   ADD-ONS
+========================= */
+const addonPrices = {
+"Roof Cleaning": 2000,
+"Floor Cleaning": 2500,
+"Odor Removal": 2000
+};
 
-if(day === 0){
-return {start:7, end:13}; // Sunday
-}
-
-return {start:7, end:16}; // Mon–Sat
-}
-
-/* ========================
-   ADDONS ONLY FOR EXPRESS & PREMIUM
-======================== */
-service.addEventListener("change", ()=>{
+/* =========================
+   SHOW ADDONS ONLY FOR EXPRESS & PREMIUM
+========================= */
+service.addEventListener("change", () => {
 if(service.value === "Express Clean" || service.value === "Premium Clean"){
 addonsBox.style.display = "block";
-}else{
+} else {
 addonsBox.style.display = "none";
 addons.forEach(a => a.checked = false);
 }
-generateTimes();
+refreshSlots();
 calculatePrice();
 });
 
-/* ========================
-   PRICE LOGIC (simple placeholder)
-======================== */
+/* =========================
+   PRICE
+========================= */
 function calculatePrice(){
-priceBox.innerText = "Total Price Calculating...";
+let total = 0;
+
+addons.forEach(a => {
+if(a.checked){
+total += addonPrices[a.value] || 0;
+}
+});
+
+priceBox.innerText = "Add-ons Total: $" + total.toLocaleString();
+return total;
 }
 
-/* ========================
-   LOAD BOOKINGS (REAL BLOCKING)
-======================== */
-async function loadBookings(){
-if(!dateInput.value) return [];
+/* =========================
+   BUSINESS HOURS
+========================= */
+function getHours(date){
+const day = new Date(date).getDay();
 
-const res = await fetch(scriptURL + "?date=" + dateInput.value);
+// Sunday
+if(day === 0){
+return {start:7, end:13};
+}
+
+// Mon-Sat
+return {start:7, end:16};
+}
+
+/* =========================
+   FETCH BOOKED SLOTS (SERVER)
+========================= */
+async function fetchBooked(date){
+try{
+const res = await fetch(`${scriptURL}?date=${date}`);
 return await res.json();
+}catch(e){
+console.error(e);
+return [];
+}
 }
 
-/* ========================
-   GENERATE TIMES WITH BLOCKING LOGIC
-======================== */
-async function generateTimes(){
+/* =========================
+   SLOT GENERATION (WITH SERVER BLOCKING)
+========================= */
+async function refreshSlots(){
 
 timeSlots.innerHTML = `<option value="">Select Time</option>`;
 
 if(!dateInput.value || !service.value) return;
 
-const bookings = await loadBookings();
-const {start,end} = getHours(dateInput.value);
+const booked = await fetchBooked(dateInput.value);
+const serviceTime = durations[service.value] || 0;
 
-const serviceDuration = durations[service.value] || 0;
+const {start, end} = getHours(dateInput.value);
 
 for(let h = start; h <= end; h++){
 for(let m = 0; m < 60; m += 30){
 
-let startMinutes = h*60 + m;
-let endMinutes = startMinutes + serviceDuration + BUFFER;
+let startMin = h * 60 + m;
+let endMin = startMin + serviceTime + BUFFER;
 
-/* CHECK OVERLAP */
-let conflict = bookings.some(b => {
-let [bh,bm] = b.split(":").map(Number);
-let bookedStart = bh*60 + bm;
-let bookedEnd = bookedStart + 90 + BUFFER; // assume avg blocking
+/* SERVER-SIDE BOOKING CONFLICT CHECK */
+let conflict = booked.some(b => {
 
-return !(endMinutes <= bookedStart || startMinutes >= bookedEnd);
+let [bh, bm] = b.split(":").map(Number);
+let bStart = bh * 60 + bm;
+
+/* assume server already includes buffer logic */
+let bEnd = bStart + 180 + BUFFER;
+
+return !(endMin <= bStart || startMin >= bEnd);
 });
 
 if(conflict) continue;
@@ -114,33 +139,54 @@ timeSlots.appendChild(option);
 }
 }
 
-/* ========================
+/* =========================
    EVENTS
-======================== */
-dateInput.addEventListener("change", generateTimes);
-service.addEventListener("change", generateTimes);
+========================= */
+dateInput.addEventListener("change", refreshSlots);
+service.addEventListener("change", refreshSlots);
 
-/* ========================
-   SUBMIT
-======================== */
-form.addEventListener("submit", async e=>{
+/* =========================
+   FORM SUBMIT (SERVER FINAL CHECK)
+========================= */
+form.addEventListener("submit", async (e) => {
 e.preventDefault();
 
-let data = Object.fromEntries(new FormData(form));
+const btn = form.querySelector("button");
+btn.disabled = true;
 
-const submitBtn = form.querySelector("button");
-submitBtn.disabled = true;
+let data = Object.fromEntries(new FormData(form).entries());
+data.price = calculatePrice();
 
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body: JSON.stringify(data)
+try{
+
+const res = await fetch(scriptURL, {
+method: "POST",
+body: JSON.stringify(data),
+headers: {
+"Content-Type": "text/plain"
+}
 });
 
-messageBox.innerText = "Booking received!";
-form.reset();
-timeSlots.innerHTML = `<option value="">Select Time</option>`;
-addonsBox.style.display = "none";
+const result = await res.json();
 
-submitBtn.disabled = false;
+/* REAL-TIME SLOT LOCKING RESPONSE */
+if(result.status === "taken"){
+messageBox.innerText = "⚠️ Slot just got booked. Please choose another.";
+await refreshSlots();
+btn.disabled = false;
+return;
+}
+
+messageBox.innerText = "✅ Booking confirmed!";
+form.reset();
+addonsBox.style.display = "none";
+timeSlots.innerHTML = `<option value="">Select Time</option>`;
+priceBox.innerText = "Add-ons Total: $0";
+
+}catch(err){
+console.error(err);
+messageBox.innerText = "❌ Error submitting booking.";
+}
+
+btn.disabled = false;
 });
