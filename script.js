@@ -23,9 +23,9 @@ const prices = {
 
 /* ADDONS */
 const addonPrices = {
-"Roof Cleaning": 2000,
-"Floor Cleaning": 2500,
-"Odor Removal": 2000
+"Deep Roof Cleaning": 8000,
+"Deep Floor Cleaning": 8500,
+"Odor Removal": 3000
 };
 
 /* SHOW ADDONS */
