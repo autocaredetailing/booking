@@ -6,6 +6,7 @@ const vehicle = document.getElementById("vehicle");
 const addonsBox = document.getElementById("addons");
 const addons = document.querySelectorAll(".addon");
 const dateInput = document.querySelector("input[name='date']");
+const timeSlots = document.getElementById("timeSlots");
 const priceBox = document.getElementById("priceBox");
 const messageBox = document.getElementById("message");
 
