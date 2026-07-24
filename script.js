@@ -24,7 +24,7 @@ const prices = {
 /* ADDONS */
 const addonPrices = {
 "Deep Roof Cleaning": 8000,
-"Deep Floor Cleaning": 8500,
+"Deep Floor Cleaning": 8000,
 "Odor Removal": 3000
 };
 
