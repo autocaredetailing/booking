@@ -5,9 +5,8 @@ const service = document.getElementById("service");
 const vehicle = document.getElementById("vehicle");
 const addonsBox = document.getElementById("addons");
 const addons = document.querySelectorAll(".addon");
-const priceBox = document.getElementById("priceBox");
-const timeSlots = document.getElementById("timeSlots");
 const dateInput = document.querySelector("input[name='date']");
+const priceBox = document.getElementById("priceBox");
 const messageBox = document.getElementById("message");
 
 dateInput.min = new Date().toISOString().split("T")[0];
